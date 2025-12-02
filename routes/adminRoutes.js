@@ -151,7 +151,7 @@ router.put("/loan/final-approve/:id", async (req, res) => {
 router.put("/loan/final-reject/:id", async (req, res) => {
   const { id } = req.params;
   const sql =
-    "UPDATE customers SET status='Rejected', admin1_status='Rejected' WHERE customer_id=?";
+    "UPDATE customers SET status='Rejected' WHERE customer_id=?";
   await db.query(sql, [id]);
 
   res.json({ success: true, message: "Loan finally rejected!" });
@@ -225,3 +225,4 @@ router.get("/admin/protected", (req, res) => {
 });
 
 export default router;
+
