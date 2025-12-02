@@ -121,7 +121,6 @@ INSERT INTO customers (
       account_no,
       ifsc,
       branch_name,
-      // <-- pass connector_id (or null)
     ]);
 
     res.status(200).json({

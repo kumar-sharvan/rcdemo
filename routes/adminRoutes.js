@@ -43,10 +43,10 @@ router.post("/admin/login", async (req, res) => {
       {
         id: admin.id,
         email: admin.email,
-        role: "admin",
+        role: admin.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "2h" }
+      { expiresIn: "1h" }
     );
 
     res.status(200).json({
@@ -56,6 +56,7 @@ router.post("/admin/login", async (req, res) => {
         id: admin.id,
         name: admin.name,
         email: admin.email,
+        role: admin.role,
       },
       message: "Login Successful",
     });
@@ -123,24 +124,80 @@ router.post("/admin/add-connector", async (req, res) => {
   }
 });
 
-//Approve application
+//fetch all approved customers in admin1_status
+router.get("/customers/approved", async (req, res) => {
+  const sql = "SELECT * FROM customers WHERE admin1_status='Approved'";
+  const [rows] = await db.query(sql);
+  res.json({ success: true, data: rows });
+});
+
+//-----GET ALL status LEVEL 2-----
+router.get("/customers/status-level2", async (req, res) => {
+  const sql = "SELECT status FROM customers ";
+  const [rows] = await db.query(sql);
+  res.json({ success: true, data: rows });
+});
+
+//-------Approve Application for Admin Level 2-------
+router.put("/loan/final-approve/:id", async (req, res) => {
+  const { id } = req.params;
+  const sql = "UPDATE customers SET status='Approved' WHERE customer_id=?";
+  await db.query(sql, [id]);
+
+  res.json({ success: true, message: "Loan finally approved!" });
+});
+
+//-------Reject Application for Admin Level 2-------
+router.put("/loan/final-reject/:id", async (req, res) => {
+  const { id } = req.params;
+  const sql =
+    "UPDATE customers SET status='Rejected', admin1_status='Rejected' WHERE customer_id=?";
+  await db.query(sql, [id]);
+
+  res.json({ success: true, message: "Loan finally rejected!" });
+});
+
+//Approve application for admin level 1
 router.put("/loan/approve/:id", async (req, res) => {
   const { id } = req.params;
 
-  const sql = "UPDATE customers SET status='Approved' WHERE customer_id=?";
+  const sql =
+    "UPDATE customers SET admin1_status='Approved' WHERE customer_id=?";
   await db.query(sql, [id]);
 
   res.json({ success: true, message: "Loan approved!" });
 });
 
-//reject application
+//reject application for admin level 1
 router.put("/loan/reject/:id", async (req, res) => {
   const { id } = req.params;
 
-  const sql = "UPDATE customers SET status='Rejected' WHERE customer_id=?";
+  const sql =
+    "UPDATE customers SET admin1_status='Rejected' WHERE customer_id=?";
   await db.query(sql, [id]);
 
   res.json({ success: true, message: "Loan rejected!" });
+});
+
+// -----GET ALL PARTICULAR LOAN ROUTES BELOW-----
+//GET ALL APPROVED LOANS
+router.get("/loans/approved", async (req, res) => {
+  const sql = "SELECT * FROM customers WHERE status='Approved'";
+  const [rows] = await db.query(sql);
+  res.json({ success: true, data: rows });
+});
+
+//GET ALL REJECTED LOANS
+router.get("/loans/rejected", async (req, res) => {
+  const sql = "SELECT * FROM customers WHERE status='Rejected'";
+  const [rows] = await db.query(sql);
+  res.json({ success: true, data: rows });
+});
+//GET ALL PENDING LOANS
+router.get("/loans/pending", async (req, res) => {
+  const sql = "SELECT * FROM customers WHERE status='Pending'";
+  const [rows] = await db.query(sql);
+  res.json({ success: true, data: rows });
 });
 
 //protected admin route

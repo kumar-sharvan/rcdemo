@@ -100,6 +100,11 @@ router.post("/connector/add-customer", async (req, res) => {
       full_name.toUpperCase().slice(0, 2) +
       Math.floor(10000 + Math.random() * 90000);
 
+    //create real time date time
+    const created_at = new Date().toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+    });
+
     const sql = `
       INSERT INTO customers (
         customer_id,
@@ -131,9 +136,10 @@ router.post("/connector/add-customer", async (req, res) => {
         account_holder_name,
         account_no,
         ifsc,
-        branch_name
+        branch_name,
+        created_at
       ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
       )
     `;
 
@@ -168,6 +174,7 @@ router.post("/connector/add-customer", async (req, res) => {
       account_no,
       ifsc,
       branch_name,
+      created_at,
     ]);
 
     return res.json({
@@ -183,7 +190,7 @@ router.post("/connector/add-customer", async (req, res) => {
 
 //SHOW ONLY FILL BY CONNECTOR'S CUSTOMERS
 router.get("/connector/customers/:connectorId", async (req, res) => {
-  const { connectorId } = req.params; 
+  const { connectorId } = req.params;
   try {
     const [result] = await db.query(
       "SELECT * FROM customers WHERE connector_id = ?",
